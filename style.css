@@ -1,127 +1,38 @@
-:root{
+:root {
     /*Primary*/
     --purple: hsl(259, 100%, 65%);
-    --light-red: hsl(0, 100%, 67%);  
+    --light-red: hsl(0, 100%, 67%);
 
-    /* Neutral*/    
+    /* Neutral*/
     --off-white: hsl(0, 0%, 94%);
     --light-grey: hsl(0, 0%, 86%);
     --smokey-grey: hsl(0, 1%, 44%);
     --off-black: hsl(0, 0%, 8%);
 }
+
 @font-face {
     font-family: 'Poppins';
     src: url(./assets/fonts/Poppins-Regular.ttf  );
 }
+
 @font-face {
     font-family: 'Poppins_ExtraBoldItalic';
     src: url(./assets/fonts/Poppins-ExtraBoldItalic.ttf  );
 }
-body{
-display: grid;
-max-width: 100svw;
-min-height: 100svh;
-margin: 0;
-font-family: 'Poppins';
 
-}
-main{
-display: grid;
-width: 100cqw;
-height: 100cqh;
-place-items: center;
-background-color: var(--off-white);
-}
-input::placeholder{
-    font-weight: 700;
-    color: var(--smokey-grey);
-    font-size: 1.8em;
-   align-self: center;
-}
-section[class="age-calculator-card"]{
+body {
     display: grid;
-    height: 500px;
-    width: 700px;
-    grid-template-columns: repeat(4,25%);
-    background-color: white;
-    gap: 10px;
-    padding: 50px 100px 50px 50px;
-    box-sizing: border-box;
-    border-bottom-right-radius: 200px;
-}
-label:nth-of-type(1){
-    grid-column: 1;
-}
-label:nth-of-type(2){
-    grid-column: 2;
-
-}
-label:nth-of-type(3){
-    grid-column: 3;
-
-}
-label{
-    width: 100%;
-    text-transform: uppercase;
-    font-style: normal;
-}
-label input{
-    height: 35px;
-    padding-inline-start: 10px;
-    width: 100%;
-    box-sizing: border-box;
-}
-span[class="line"]{
-    border: 0;
-    border-top: 1px solid var(--smokey-grey);
-    width: 100%;
-    height: 1px;
-    grid-row: 2;
-    grid-column: 1 / -1;
-    place-self: center;
-}
-button {
-    grid-row: 2;
-    border-radius: 50%;
-    height: 50px;
-    width: 50px;
-    background-color: var(--purple);
-    display: grid;
-    place-content: center;
-    place-self: center;
-    grid-column: 4;
-    justify-self: end;
-}
-button img{
-    height: 100%;
-    width: 100%;
-    grid-column: -1;
-}
-span:first-child{
-    color: var(--purple);
-}
-
-p {
-    display: grid;
-    grid-column: 1 / 4;
-    font-size: 3.5em;
-    padding: 0;
+    max-width: 100svw;
+    min-height: 100svh;
     margin: 0;
-    font-weight: 800    ;
-        text-align: start;
-    grid-template-columns: auto 1fr;
-    column-gap: 5px;
-    font-family: 'Poppins_ExtraBoldItalic';
+    font-family: 'Poppins';
+    container: body / inline-size;
+}
 
+main {
+    display: grid;
+    width: 100cqw;
+    height: 100cqh;
+    place-items: center;
+    background-color: var(--off-white);
 }
-p[class="years"] {
-    grid-row: 3;
-}
-p[class="months"] {
-    grid-row: 4;
-}
-p[class="days"] {
-    grid-row: 5;
-}
-p span{}
-    
