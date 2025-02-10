@@ -28,16 +28,17 @@
 <body>
   <main>
     <age-calculator-component>
-      <temaplate>
+      <template shadowrootmode="open">
+        <form action="">
         <section class="age-calculator-card">
           <label for="day">Day
-            <input type="text" name="day" id="day" placeholder="DD">
+            <input type="number" name="day" id="day" placeholder="DD" min="0">
           </label>
-          <label for="Month">Month
-            <input type="month" name="month" id="month" placeholder="MM">
+          <label for="month">Month
+            <input type="number" name="month" id="month" placeholder="MM" min="1" max="12">
           </label>
           <label for="year">Year
-            <input type="text" name="year" id="year" placeholder="YYYY">
+            <input type="number" name="year" id="year" placeholder="YYYY" min="1875" max="2025">
           </label>
           <span class="line"></span>
           <button>
@@ -68,6 +69,7 @@
             </span>
           </p>
         </section>
+      </form>
         <style>
           input::placeholder {
             font-weight: 700;
@@ -75,7 +77,9 @@
             font-size: 1.8em;
             align-self: center;
           }
-
+form{
+  display: contents;
+}
           section[class="age-calculator-card"] {
             display: grid;
             height: 500px;
@@ -106,7 +110,7 @@
             width: 100%;
             text-transform: uppercase;
             font-style: normal;
-          }
+          } 
 
           label input {
             height: 35px;
@@ -114,7 +118,6 @@
             width: 100%;
             box-sizing: border-box;
           }
-
           span[class="line"] {
             border: 0;
             border-top: 1px solid var(--smokey-grey);
@@ -203,7 +206,7 @@
             }
           }
         </style>
-      </temaplate>
+      </template>
     </age-calculator-component>
 
   </main>
