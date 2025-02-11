@@ -31,7 +31,7 @@
       <template shadowrootmode="open">
         <form action="">
         <section class="age-calculator-card">
-          <label for="day">Day
+          <label for="day">Day          
             <input type="number" name="day" id="day" placeholder="DD" min="0">
           </label>
           <label for="month">Month
@@ -45,7 +45,7 @@
             <img src="./assets/images/icon-arrow.svg" alt="Arrow pointing down">
           </button>
           <p class="years">
-            <span>
+            <span id="years">
               --
             </span>
             <span>
@@ -53,7 +53,7 @@
             </span>
           </p>
           <p class="months">
-            <span>
+            <span id="months">
               --
             </span>
             <span>
@@ -61,7 +61,7 @@
             </span>
           </p>
           <p class="days">
-            <span>
+            <span id="days">
               --
             </span>
             <span>
@@ -210,7 +210,6 @@ form{
     </age-calculator-component>
 
   </main>
-
 
 
   <div class="attribution">
