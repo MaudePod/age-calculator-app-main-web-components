@@ -1,18 +1,18 @@
+import { DateTime, Interval } from './scripts/luxon/luxon.min.js';
 const template = document.createElement("template");
 template.innerHTML = `
         <form action="">
         <section class="age-calculator-card">
           <label for="day">Day
-            <input list="available-days" name="day" id="day" placeholder="DD"/>
+            <input list="available-days" name="day" id="day" placeholder="DD" minLength="2" maxLength="2"/>
             <datalist id="available-days">
               <option value="0"></option>
             </datalist>
             
           </label>
           <label for="month">Month
-                      <input list="available-months" name="month" id="month" placeholder="MM"/>
+            <input list="available-months" name="month" id="month" placeholder="MM" minLength="2" maxLength="2"/>
             <datalist id="available-months">
-              <option value="00"></option>
               <option value="01"></option>
               <option value="02"></option>
               <option value="03"></option>
@@ -29,7 +29,7 @@ template.innerHTML = `
 
           </label>
           <label for="year">Year
-            <input list="available-years" name="year" id="year" placeholder="YYYY"/>
+            <input list="available-years" name="year" id="year" placeholder="YYYY" minLength="4" maxLength="4"/>
             <datalist id="available-years">
               <option value="0"></option>
             </datalist>
@@ -202,120 +202,93 @@ template.innerHTML = `
         </style>
       `;
 class AgeCalculatorComponent extends HTMLElement {
-    #internals;
-    #dayMonths = [
-        {
-            month: "January", days: 31
-        },
-        {
-            month: "February", days: 28
-        },
-        {
-            month: "March", days: 31
-        },
-        {
-            month: "April", days: 30
-        },
-        {
-            month: "May", days: 31
-        },
-        {
-            month: "June", days: 30
-        },
-        {
-            month: "July", days: 31
-        },
-        {
-            month: "August", days: 31
-        },
-        {
-            month: "September", days: 30
-        },
-        {
-            month: "October", days: 31
-        },
-        {
-            month: "November", days: 30
-        },
-        {
-            month: "December", days: 31
-        }
-    ];
-    #form;
-    #dayInput;
-    #monthInput;
-    #monthOutput;
-    #yearInput;
-    #yearOutput;
-    constructor() {
-        super();
-    };
-    connectedCallback() {
-        this.#internals = this.attachInternals();
-        this.#internals.shadowRoot.innerHTML = template.innerHTML;
-        this.#form = this.#internals.shadowRoot.querySelector("form");
-        console.log(this.#form)
-        this.initializeFields();
-        this.#dayInput = this.#internals.shadowRoot.querySelector("input[id='day']");
-        this.#monthInput = this.#internals.shadowRoot.querySelector("input[id='month']");
-        this.#monthOutput = this.#internals.shadowRoot.querySelector("span[id='months']");
-        this.#yearInput = this.#internals.shadowRoot.querySelector("input[id='year']");
-        this.#yearOutput = this.#internals.shadowRoot.querySelector("span[id='years']");
-        this.#yearInput.addEventListener('input', (event) => {
-            this.setAgeOutput(this.#yearInput, this.#yearOutput, this.getAgeInYears);
-        })
-        this.#monthInput.addEventListener('input', (event) => {
-            const lastDayInAGivenMonth = this.#dayMonths[this.#monthInput.value - 1].days;
-            this.setMaximumValidDate(lastDayInAGivenMonth);
-            this.setAgeOutput(this.#monthInput, this.#monthOutput, this.getAgeInMonths);
-        });
-        this.#form.addEventListener('input', (event) => this.#form.reportValidity());
+  #internals;
+  #form;
+  #dayInput;
+  #dayOutput;
+  #monthInput;
+  #monthOutput;
+  #yearInput;
+  #yearOutput;
+  constructor() {
+    super();
+  };
+  connectedCallback() {
+    this.#internals = this.attachInternals();
+    this.#internals.shadowRoot.innerHTML = template.innerHTML;
+    this.#form = this.#internals.shadowRoot.querySelector("form");
+    this.initializeFields();
+    this.#dayInput = this.#internals.shadowRoot.querySelector("input[id='day']");
+    this.#dayOutput = this.#internals.shadowRoot.querySelector("span[id='days']");
+    this.#monthInput = this.#internals.shadowRoot.querySelector("input[id='month']");
+    this.#monthOutput = this.#internals.shadowRoot.querySelector("span[id='months']");
+    this.#yearInput = this.#internals.shadowRoot.querySelector("input[id='year']");
+    this.#yearOutput = this.#internals.shadowRoot.querySelector("span[id='years']");
+    this.#monthInput.addEventListener('input', (event) => {
+      if (this.#monthInput.value != "" && this.#monthInput.checkValidity() && this.#yearInput.value != "" && this.#yearInput.checkValidity()) {
+        const lastDayInAGivenMonth = this.getLastDayInGivenMonth();
+        this.setOptionsForDateField(lastDayInAGivenMonth);
+      }
+    });
+    this.#form.addEventListener('input', (event) => {
+      this.#form.reportValidity();
+      if (this.formFieldsAreFilled() && this.#form.checkValidity()) {
+        this.displayAge();
+      }
+    })
+  }
+  initializeFields = () => {
+    this.setupDefaultOptionsForDayAndYearFields();
+  }
+  setupDefaultOptionsForDayAndYearFields = () => {
+    const lastDayOfDefaultMonth = 31;
+    this.setOptionsForDateField(lastDayOfDefaultMonth);
+    this.setOptionsForYearField(1875, 2025);
+  }
+  setOptionsForDateField = (lastDayInAGivenMonth) => {
+    let dayOptions = "";
+    for (let i = 0; i <= lastDayInAGivenMonth; i++) {
+      dayOptions += `<option value="${i}"></option>`;
     }
-    initializeFields = () => {
-        this.setupDefaultOptionsForDayAndYearFields();
+    this.#internals.shadowRoot.querySelector('datalist[id="available-days"]').innerHTML = dayOptions;
+  }
+  setOptionsForYearField = (startYearRange, endYearRange) => {
+    let yearOptions = "";
+    for (let i = startYearRange; i <= endYearRange; i++) {
+      yearOptions += `  <option value="${i}"></option>`;
     }
-    setupDefaultOptionsForDayAndYearFields = () => {
-        const lasyDayOfDefaultMonth = 31;
-        let dayOptions = "";
-        for (let i = 0; i <= lasyDayOfDefaultMonth; i++) {
-            dayOptions += `<option value="${i}"></option>`;
-        }
-        this.#internals.shadowRoot.querySelector('datalist[id="available-days"]').innerHTML = dayOptions;
-        let yearOptions = "";
-        const startYearRange = 1875;
-        const endYearRange = 2025;
-        for (let i = startYearRange; i <= endYearRange; i++) {
-            yearOptions += `  <option value="${i}"></option>`;
-        }
-        this.#internals.shadowRoot.querySelector('datalist[id="available-years"]').innerHTML = yearOptions;
+    this.#internals.shadowRoot.querySelector('datalist[id="available-years"]').innerHTML = yearOptions;
+  }
+  setAgeOutput = (birthDatePartInput, birthDatePartOutput, ageCalculatingFunction) => {
+    if (!birthDatePartInput.checkValidity()) {
+      birthDatePartOutput.textContent = "_ _";
+    } else {
+      birthDatePartOutput.textContent = ageCalculatingFunction();
     }
-    setMaximumValidDate = (lastDayInAGivenMonth) => {
-        this.#dayInput.max = lastDayInAGivenMonth;
+  }
+
+  getDateOfBirth = () => {
+    const birthDate = this.#yearInput.value + "-" + this.#monthInput.value + "-" + this.#dayInput.value;
+    return DateTime.fromISO(birthDate);
+  }
+  displayAge = () => {
+    const age = DateTime.now().diff(this.getDateOfBirth(), ["years", "months", "days"]).toObject();
+    this.#dayOutput.textContent = Math.floor(Number(age.days));
+    this.#monthOutput.textContent = Math.floor(Number(age.months));
+    this.#yearOutput.textContent = Math.floor(Number(age.years));
+  }
+  formFieldsAreFilled() {
+    return this.#dayInput.value != "" && this.#monthInput.value != "" && this.#yearInput.value != "";
+  }
+  getLastDayInGivenMonth = () => {
+    if (this.#monthInput.value != "" && this.#monthInput.checkValidity() && this.#yearInput.value != "" && this.#yearInput.checkValidity()) {
+      return DateTime.fromISO(this.#yearInput.value + "-" + this.#monthInput.value + "-01").daysInMonth
     }
-    setAgeOutput = (birthDatePartInput, birthDatePartOutput, ageCalculatingFunction) => {
-        if (!birthDatePartInput.checkValidity()) {
-            birthDatePartOutput.textContent = "_ _";
-        } else {
-            birthDatePartOutput.textContent = ageCalculatingFunction();
-        }
-    }
-    getAgeInYears = () => {
-        const yearOfbirth = Number(this.#yearInput.value);
-        if (yearOfbirth == 0) {
-            return 0;
-        }
-        return new Date().getFullYear() - Number(this.#yearInput.value);
-    }
-    getAgeInMonths = () => {
-        console.log("adas", this.#monthInput.value)
-        const monthOfbirth = Number(this.#monthInput.value);
-        if (monthOfbirth == 0) {
-            return 0;
-        }
-        return new Date().getMonth() - Number(this.#monthInput.value);
-    }
-    disconnectedCallback() { }
+  }
+  disconnectedCallback() { }
 }
 if (!customElements.get("age-calculator-component")) {
-    customElements.define('age-calculator-component', AgeCalculatorComponent);
+  customElements.define('age-calculator-component', AgeCalculatorComponent);
 }
+
+
