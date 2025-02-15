@@ -1,17 +1,17 @@
-import { DateTime, Interval } from './scripts/luxon/luxon.min.js';
+import { DateTime } from './scripts/luxon/luxon.min.js';
 const template = document.createElement("template");
 template.innerHTML = `
         <form action="">
         <section class="age-calculator-card">
           <label for="day">Day
-            <input list="available-days" name="day" id="day" placeholder="DD" minLength="2" maxLength="2"/>
+            <input list="available-days" name="day" id="day" placeholder="DD" maxLength="2"/>
             <datalist id="available-days">
               <option value="0"></option>
             </datalist>
             
           </label>
           <label for="month">Month
-            <input list="available-months" name="month" id="month" placeholder="MM" minLength="2" maxLength="2"/>
+            <input list="available-months" name="month" id="month" placeholder="MM" maxLength="2"/>
             <datalist id="available-months">
               <option value="01"></option>
               <option value="02"></option>
@@ -71,9 +71,11 @@ template.innerHTML = `
             font-size: 1.8em;
             align-self: center;
           }
-            form{
+
+          form {
             display: contents;
-            }
+          }
+
           section[class="age-calculator-card"] {
             display: grid;
             height: 500px;
@@ -104,7 +106,7 @@ template.innerHTML = `
             width: 100%;
             text-transform: uppercase;
             font-style: normal;
-          } 
+          }
 
           label input {
             height: 35px;
@@ -112,6 +114,7 @@ template.innerHTML = `
             width: 100%;
             box-sizing: border-box;
           }
+
           span[class="line"] {
             border: 0;
             border-top: 1px solid var(--smokey-grey);
@@ -174,29 +177,29 @@ template.innerHTML = `
 
           @container (inline-size < 1100px) {
             section[class="age-calculator-card"] {
-              height: auto;
-              width: 90cqw;
-              grid-template-columns: repeat(3, 1fr);
-              border-bottom-right-radius: 100px;
-              padding: 50px;
+                height: auto;
+                width: 90cqw;
+                grid-template-columns: repeat(3, 1fr);
+                border-bottom-right-radius: 100px;
+                padding: 50px;
             }
 
             p {
-              font-size: 1.8em;
+                font-size: 1.8em;
             }
 
             label:nth-of-type(1),
             label:nth-of-type(2),
             label:nth-of-type(3) {
-              grid-column: unset;
+                grid-column: unset;
             }
 
             button {
-              grid-column: 2;
+                grid-column: 2;
             }
 
             input::placeholder {
-              font-size: 1.4em;
+                font-size: 1.4em;
             }
           }
         </style>
@@ -224,13 +227,15 @@ class AgeCalculatorComponent extends HTMLElement {
     this.#monthOutput = this.#internals.shadowRoot.querySelector("span[id='months']");
     this.#yearInput = this.#internals.shadowRoot.querySelector("input[id='year']");
     this.#yearOutput = this.#internals.shadowRoot.querySelector("span[id='years']");
-    this.#monthInput.addEventListener('input', (event) => {
+    this.#monthInput.addEventListener('change', (event) => {
       if (this.#monthInput.value != "" && this.#monthInput.checkValidity() && this.#yearInput.value != "" && this.#yearInput.checkValidity()) {
         const lastDayInAGivenMonth = this.getLastDayInGivenMonth();
         this.setOptionsForDateField(lastDayInAGivenMonth);
+        this.setPaternForDateField(lastDayInAGivenMonth);
+        this.#dayInput.reportValidity();
       }
     });
-    this.#form.addEventListener('input', (event) => {
+    this.#form.addEventListener('change', (event) => {
       this.#form.reportValidity();
       if (this.formFieldsAreFilled() && this.#form.checkValidity()) {
         this.displayAge();
@@ -252,6 +257,10 @@ class AgeCalculatorComponent extends HTMLElement {
     }
     this.#internals.shadowRoot.querySelector('datalist[id="available-days"]').innerHTML = dayOptions;
   }
+  setPaternForDateField = (lastDayInAGivenMonth) => {
+    this.#dayInput.setAttribute('pattern', `(${lastDayInAGivenMonth}|\\d{1,2})`);
+    this.#dayInput.setAttribute('title', `Please select a day between 1 and ${lastDayInAGivenMonth}`);
+  }
   setOptionsForYearField = (startYearRange, endYearRange) => {
     let yearOptions = "";
     for (let i = startYearRange; i <= endYearRange; i++) {
@@ -259,30 +268,56 @@ class AgeCalculatorComponent extends HTMLElement {
     }
     this.#internals.shadowRoot.querySelector('datalist[id="available-years"]').innerHTML = yearOptions;
   }
-  setAgeOutput = (birthDatePartInput, birthDatePartOutput, ageCalculatingFunction) => {
-    if (!birthDatePartInput.checkValidity()) {
-      birthDatePartOutput.textContent = "_ _";
-    } else {
-      birthDatePartOutput.textContent = ageCalculatingFunction();
-    }
-  }
 
   getDateOfBirth = () => {
-    const birthDate = this.#yearInput.value + "-" + this.#monthInput.value + "-" + this.#dayInput.value;
+    const birthDate = this.#yearInput.value + "-" + this.getMonth() + "-" + this.getDay();
     return DateTime.fromISO(birthDate);
+  }
+  getDay = () => {
+    if (this.#dayInput.value.length < 2) {
+      return "0" + this.#dayInput.value;
+    }
+    return this.#dayInput.value;
+  }
+  formatDaysForOutput = (days) => {
+    if (days < 10) {
+      return `-${days}`;
+    }
+    return days;
+  }
+  formatMonthsForOutput = (months) => {
+    if (months < 10) {
+      return `-${months}`;
+    }
+    return months;
+  }
+  formatYearsForOutput = (years) => {
+    if (years < 10) {
+      return `-${years}`;
+    }
+    return years;
+  }
+  getMonth = () => {
+    if (this.#monthInput.value.length < 2) {
+      return "0" + this.#monthInput.value;
+    }
+    return this.#monthInput.value;
   }
   displayAge = () => {
     const age = DateTime.now().diff(this.getDateOfBirth(), ["years", "months", "days"]).toObject();
-    this.#dayOutput.textContent = Math.floor(Number(age.days));
-    this.#monthOutput.textContent = Math.floor(Number(age.months));
-    this.#yearOutput.textContent = Math.floor(Number(age.years));
+    const days = this.formatDaysForOutput(Math.floor(Number(age.days)));
+    const months = this.formatMonthsForOutput(Math.floor(Number(age.months)));
+    const years = this.formatYearsForOutput(Math.floor(Number(age.years)));
+    this.#dayOutput.textContent = days;
+    this.#monthOutput.textContent = months;
+    this.#yearOutput.textContent = years;
   }
   formFieldsAreFilled() {
     return this.#dayInput.value != "" && this.#monthInput.value != "" && this.#yearInput.value != "";
   }
   getLastDayInGivenMonth = () => {
     if (this.#monthInput.value != "" && this.#monthInput.checkValidity() && this.#yearInput.value != "" && this.#yearInput.checkValidity()) {
-      return DateTime.fromISO(this.#yearInput.value + "-" + this.#monthInput.value + "-01").daysInMonth
+      return DateTime.fromISO(this.#yearInput.value + "-" + this.#monthInput.value + "-01").daysInMonth;
     }
   }
   disconnectedCallback() { }
