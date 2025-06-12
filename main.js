@@ -1,7 +1,7 @@
 import { DateTime } from './scripts/luxon/luxon.min.js';
 const template = document.createElement("template");
 template.innerHTML = `
-        <form action="">
+        <form action="get">
         <section class="age-calculator-card">
           <label for="day">Day
             <input list="available-days" name="day" id="day" placeholder="DD" maxLength="2"/>
@@ -142,6 +142,10 @@ template.innerHTML = `
             height: 100%;
             width: 100%;
             grid-column: -1;
+          }
+
+          button:focus {
+            border-color: green;
           }
 
           span:first-child {
@@ -325,5 +329,3 @@ class AgeCalculatorComponent extends HTMLElement {
 if (!customElements.get("age-calculator-component")) {
   customElements.define('age-calculator-component', AgeCalculatorComponent);
 }
-
-

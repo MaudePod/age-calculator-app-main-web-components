@@ -29,7 +29,7 @@
   <main>
     <age-calculator-component>
       <template shadowrootmode="open">
-        <form action="">
+        <form method="get">
         <section class="age-calculator-card">
           <label for="day">Day          
             <input type="number" name="day" id="day" placeholder="DD" min="0">
@@ -146,7 +146,9 @@
             width: 100%;
             grid-column: -1;
           }
-
+          button:focus {
+            border-color: green;
+          }
           span:first-child {
             color: var(--purple);
           }
